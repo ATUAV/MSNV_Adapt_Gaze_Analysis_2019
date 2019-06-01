@@ -8,14 +8,14 @@ library(data.table)
 library(stringr)
 library(bit64)
 
-setwd("/Users/kristys/Documents/Eye_Tracking_Processing")
+setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019/Eye_Tracking_Processing")
 
 users <- fread("study2_user_list.csv")
 msnv_ids <- c(27, 60, 11, 30, 62, 72, 28, 74,  5, 20, 76, 66,  9,  3)
 
 triggers_ignored <- c("5_ref_109_rule", "5_ref_110_rule", "5_ref_106_rule", "30_ref_102_rule", "62_ref_102_rule")
 
-setwd("/Users/kristys/Documents")
+setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019")
 
 for (user in users$user_id) {
   trigger_segs <- data.table()

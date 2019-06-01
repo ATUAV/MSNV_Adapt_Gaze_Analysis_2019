@@ -7,7 +7,7 @@
 library(data.table)
 library(readr)
 
-setwd("/Users/kristys/Documents/Eye_Tracking_Processing")
+setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019/Eye_Tracking_Processing")
 
 mmd_order <- fread("User_data.csv")
 mmd_order <- subset(mmd_order, sel = -c(date_created))
@@ -94,7 +94,7 @@ for (i in 1:length) {
     seg_frame <- rbind(seg_frame, temp)
   }
   
-  setwd("/Users/kristys/Documents/Eye_Tracking_Processing/segs")
+  setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019/Eye_Tracking_Processing/segs")
   write_tsv(seg_frame, paste(a_user,".seg", sep = ""), col_names = FALSE)
 }
 

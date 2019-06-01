@@ -6,7 +6,7 @@
 library(data.table)
 library(stringr)
 
-setwd("/Users/kristys/Documents/Eye_Tracking_Processing")
+setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019/Eye_Tracking_Processing")
 
 users <- fread("study2_user_list.csv")
 msnv_ids <- c(27, 60, 11, 30, 62, 72, 28, 74,  5, 20, 76, 66,  9,  3)
@@ -33,8 +33,8 @@ for (msnv in msnv_ids) {
       segs <- c(segs, paste("#\t",trigger[1,V3],",",trigger[1,V4], sep=""))
     }
     
-    #add overall aoi
-    overall_aoi <- paste0(user, '_', msnv, '_overall')
+    #create overall aoi string
+    overall_aoi <- ''
     if (length(segs)==0) {
       next
     }
@@ -42,12 +42,25 @@ for (msnv in msnv_ids) {
       aoi <- str_split(as.character(segs[i]), '\t', n=2)[[1]][2]
       overall_aoi <- paste(overall_aoi, aoi, sep='\t')
     }
+    
+    # remove duplicate bars from overall
+    aois_combined <- str_split(as.character(overall_aoi), '\t', n=2)[[1]][2]
+    dat <- unlist(strsplit(aois_combined, "\t"))
+    no_dup <- c()
+    for (i in 0:(length(dat)/5 - 1)) {
+      no_dup <- c(no_dup, paste(dat[(i*5+1):(i*5+5)], collapse = '\t'))
+    }
+    no_dup <- no_dup[!duplicated(no_dup)]
+    no_dup <- paste0(no_dup, collapse = '\t')
+    overall_aoi <- paste0(user, '_', msnv, '_overall\t', no_dup)
+    
+    
     trigger_segs <- trigger_segs[order(V3),]
     overall_aoi <- paste0(overall_aoi, "\n#\t", trigger_segs[1]$V3, ",", trigger_segs[nrow(trigger_segs)]$V4)
     segs <- c(segs, overall_aoi)
     
-    # for 1 file per user
-    # cat(paste(segs, collapse="\n"), file=paste("dynamic_aois/", 'dynamic_' , user, ".aoi", sep=""), sep="\n", append=TRUE) 
+    # for 1 file per user, need to delete existing files first 
+    #cat(paste(segs, collapse="\n"), file=paste("dynamic_aois/", 'dynamic_' , user, ".aoi", sep=""), sep="\n", append=TRUE) 
     # for 1 file per user and per msnv
     cat(paste(segs, collapse="\n"), file=paste("dynamic_aois_per_user_msnv/", 'dynamic_' , user, "_", msnv, ".aoi", sep=""), sep="", append=FALSE)
   }
