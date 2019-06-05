@@ -1,7 +1,14 @@
 # Generate dynamic aoi files from static aoi files and trigger seg files 
 #
 # Author: Kristy Siu
-# Last Update: May 2019
+# 
+# In each .aoi file generated for a msnv, all lines except the last correspond to 
+# a list of marks for a triggered rule, with the aoi name set to corresponding rule
+# name. Each bar in the list has 5 points, although the 5th point is the same the 
+# 1st point and is not actually needed. The last line has the concatenation of all 
+# the above AOIs' coordinates. All AOIs with more than 1 bar do not actually define 
+# an AOI we want and is simply a concatenation of coordinates.
+
 
 library(data.table)
 library(stringr)
