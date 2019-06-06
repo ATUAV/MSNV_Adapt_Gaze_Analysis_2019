@@ -3,11 +3,11 @@
 # Author: Kristy Siu
 # 
 # In each .aoi file generated for a msnv, all lines except the last correspond to 
-# a list of marks for a triggered rule, with the aoi name set to corresponding rule
-# name. Each bar in the list has 5 points, although the 5th point is the same the 
-# 1st point and is not actually needed. The last line has the concatenation of all 
-# the above AOIs' coordinates. All AOIs with more than 1 bar do not actually define 
-# an AOI we want and is simply a concatenation of coordinates.
+# a bar for a triggered rule that can trigger more than 1 bar, with the aoi name set 
+# to corresponding rule name appended with a 0-based index. Each bar is defined with
+# 5 points, although the 5th point is the same the 1st point and is not actually
+# needed. The last line has the concatenation of all the above AOIs' coordinates. 
+# and does not actually define an AOI.
 
 
 library(data.table)
@@ -36,8 +36,15 @@ for (msnv in msnv_ids) {
       if (nrow(trigger) != 1) {
         next
       }
-      segs <- c(segs, aois[k,])
-      segs <- c(segs, paste("#\t",trigger[1,V3],",",trigger[1,V4], sep=""))
+      split <- str_split(as.character(aois[k,]), '\t')[[1]]
+      
+      for (i in 0:((length(split)-1)/5 -1)) {
+        seg <- c(paste0(split[1], '_', i))
+        seg <- c(seg, split[(i*5+2):(i*5+5)])
+        seg <- paste(seg, collapse = '\t')
+        segs <- c(segs, seg)
+        segs <- c(segs, paste("#\t",trigger[1,V3],",",trigger[1,V4], sep=""))
+      }
     }
     
     #create overall aoi string
