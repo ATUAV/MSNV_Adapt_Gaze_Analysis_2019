@@ -1,3 +1,9 @@
+"""
+Generates all lists of bars that would be highlighted for all interventions. 
+Every 4 (x,y) coordinates in each line (AOI) is a bar for an intervention. Each 
+AOI's name is the rule name from the database. 1 line per
+intevention and 1 file per msnv.
+"""
 import pandas as pd
 import json
 
@@ -56,7 +62,7 @@ for rule, interventions in rule_payload:
             bottom_right_y = bottom_left_y
             
             bar_coord = [(top_left_x, top_left_y), (top_right_x, top_right_y), 
-                         (bottom_right_x, bottom_right_y), (bottom_left_x, bottom_left_y), (top_left_x, top_left_y)]
+                         (bottom_right_x, bottom_right_y), (bottom_left_x, bottom_left_y)]
             
             rule_coord.extend(bar_coord)
     
