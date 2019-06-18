@@ -72,11 +72,11 @@ for msnv, interventions in intervention_grouped:
                 if aoi_name in relevant_indices:
                     rel_overall_list += string
                     if (i == 3):
-                        rel_overall_list += ';'
+                        rel_overall_list += '\t;'
                 else: 
                     non_rel_overall_list += string
                     if (i == 3):
-                        non_rel_overall_list += ';'
+                        non_rel_overall_list += '\t;'
                 
         fout.write('\n')
     
