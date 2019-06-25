@@ -31,15 +31,17 @@ for (msnv in msnv_ids) {
     for (k in 1:nrow(aois)) {
       rule <- unlist(strsplit(as.character(aois[k,]), split="\t"))[1]
       trigger <- triggers[V1==rule]
-      if (nrow(trigger) != 1) {
-        next
-      }
+      
       split <- str_split(as.character(aois[k,]), '\t')[[1]]
       
       for (i in 0:((length(split)-1)/4 -1)) {
         bar <- c(split[1], split[(i*4+2):(i*4+5)])
         bar <- paste(bar, collapse = '\t')
         bars <- c(bars, bar)
+        if (nrow(trigger) != 1) {
+          bars <- c(bars, paste("#\t", -1, ",", -1, sep=""))
+          break
+        }
         bars <- c(bars, paste("#\t",trigger[1,V3],",",trigger[1,V4], sep=""))
         
         bars_combined <- c('Highlighted bars', split[(i*4+2):(i*4+5)])
