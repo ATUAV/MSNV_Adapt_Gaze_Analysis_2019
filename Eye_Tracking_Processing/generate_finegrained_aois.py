@@ -1,3 +1,9 @@
+'''
+Ouputs .aoi files used by another script to get legend AOIs.
+
+All other AOIs included in the ouput are not updated. 
+'''
+
 import pandas as pd
 import json
 
