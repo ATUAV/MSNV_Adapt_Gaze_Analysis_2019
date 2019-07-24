@@ -1,7 +1,6 @@
 library(data.table)
 library(hash)
 library(stringr)
-library(Hmisc)
 library(ggplot2)
 
 
@@ -11,8 +10,8 @@ control_dropped_sc <- hash('3'=c('12'), '11'=c('78'),'5'=c('68','40','59'),'27'=
                            '72'=c('60','59'),'30'=c('71','59','97'),'18'=c('59','16','73','65','97'),
                            '66'=c('60'),'74'=c('16','52','97'),'76'=c('59'),'60'=c('55'),
                            '9'=c('55'),'20'=c('85'))
-adaptive_dropped_sc <- hash('20'=c('msnv29','msnv12'),'76'=c('msnv50'),'30'=c('msnv38'),
-                            '66'=c('msnv69','msnv12'),'60'=c('msnv12','msnv81'),'9'=c('msnv38'),
+adaptive_dropped_sc <- hash('20'=c('msnv12'),'76'=c('msnv50'),'30'=c('msnv38'),
+                            '66'=c('msnv69','msnv12'),'60'=c('msnv12','msnv81'),
                             '72'=c('msnv43'),'5'=c('msnv81'))
 
 setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019")
@@ -20,8 +19,8 @@ UC_features_df <- fread("MSNV Adapt + Control userchar score.csv", sep=",")
 setnames(UC_features_df, 1, 'part_id')
 
 setwd("/Users/kristys/Documents/EMDAT-subtractive/outputfolder")
-ctrl_features_df <- fread("control_finegrained_features.tsv", sep="\t") 
-adpt_features_df <- fread("adaptive_finegrained_features.tsv", sep="\t") 
+ctrl_features_df <- fread("control_ref_viz_features.tsv", sep="\t") 
+adpt_features_df <- fread("adaptive_ref_viz_features.tsv", sep="\t") 
 ctrl_col_names <- names(ctrl_features_df)[c(-1,-2)]
 adpt_col_names <- names(adpt_features_df)[c(-1,-2)]
 
@@ -110,8 +109,8 @@ for (msnv in msnv_ids) {
 adpt_matrix <- merge(adpt_matrix, UC_features_df, all.x=TRUE)
 
 setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019")
-write.table(ctrl_matrix, file='control_FG_features_rearranged.tsv', sep = "\t", row.names = FALSE)
-write.table(adpt_matrix, file='adaptive_FG_features_rearranged.tsv', sep = "\t", row.names = FALSE)
+write.table(ctrl_matrix, file='control_ref_viz_features_rearranged.tsv', sep = "\t", row.names = FALSE)
+write.table(adpt_matrix, file='adaptive_ref_viz_features_rearranged.tsv', sep = "\t", row.names = FALSE)
 
 ### plotting control vs adaptive bar charts
 important_features <- c('totaltimespent', 'proportiontime', 'timetofirstfixation')
