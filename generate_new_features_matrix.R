@@ -15,8 +15,9 @@ adaptive_dropped_sc <- hash('20'=c('msnv12'),'76'=c('msnv50'),'30'=c('msnv38'),
                             '72'=c('msnv43'),'5'=c('msnv81'))
 
 setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019")
-UC_features_df <- fread("MSNV Adapt + Control userchar score.csv", sep=",") 
-setnames(UC_features_df, 1, 'part_id')
+UC_features_df <- fread("control_adaptive_UC_performance.csv", sep=",") 
+UC_features_df[, msnv := as.character(msnv)]
+
 
 setwd("/Users/kristys/Documents/EMDAT-subtractive/outputfolder")
 ctrl_features_df <- fread("control_ref_viz_features.tsv", sep="\t") 
@@ -68,8 +69,7 @@ for (msnv in msnv_ids) {
   
 }
 ctrl_matrix <- merge(ctrl_matrix, UC_features_df, all.x=TRUE)
-### mising some UC 
-ctrl_matrix$group <- 'control'
+
 
 # generate new adaptive feature matrix 
 for (msnv in msnv_ids) {
@@ -108,9 +108,13 @@ for (msnv in msnv_ids) {
 }
 adpt_matrix <- merge(adpt_matrix, UC_features_df, all.x=TRUE)
 
+# write out rearranged feature files 
 setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019")
 write.table(ctrl_matrix, file='control_ref_viz_features_rearranged.tsv', sep = "\t", row.names = FALSE)
 write.table(adpt_matrix, file='adaptive_ref_viz_features_rearranged.tsv', sep = "\t", row.names = FALSE)
+
+
+
 
 ### plotting control vs adaptive bar charts
 important_features <- c('totaltimespent', 'proportiontime', 'timetofirstfixation')
@@ -148,46 +152,7 @@ for(f in important_features) {
 }
 
 
-## split by UC
-for(f in important_features) {
-  # stats for adaptive
-  adpt_feat_stats <- adpt_matrix[, .(mean_feat = mean(get(f)), sd_feat = var(get(f)), size = .N),by = .(aoi_name, msnv, group, BarChartLit)]
-  adpt_feat_stats <- adpt_feat_stats[!(aoi_name=='Non-relevant bars' & (msnv=='20' | msnv=='60' | msnv=='62'))]
-  
-  adpt_feat_weighted_stats <- adpt_feat_stats[, .(weighted_mean = unlist(lapply(.SD,weighted.mean,w=size))),
-                                              by=.(aoi_name, group, BarChartLit),.SDcols=c('mean_feat')]
-  adpt_feat_weighted_stats$weighted_sd <- adpt_feat_stats[, .(weighted_sd = lapply(.SD,wtd.var,weights=size)),
-                                                          by=.(aoi_name, group, BarChartLit),.SDcols=c('sd_feat')]$weighted_sd
-  adpt_feat_weighted_stats[, weighted_sd:=sqrt(as.numeric(weighted_sd))]
-  
-  # p <- ggplot(adpt_feat_weighted_stats, aes(x=aoi_name, y=weighted_mean, fill=BarChartLit)) +
-  #   geom_bar(stat = "identity", color="black", position=position_dodge()) + 
-  #   ggtitle(paste0("Adaptive: ", f, " split by BarChartLit")) +
-  #   theme(plot.title = element_text(hjust = 0.5))
-  
-  
-  
-  # stats for control 
-  # ctrl_feat_stats <- ctrl_matrix[, .(mean_feat = mean(get(f)), sd_feat = var(get(f)), size = .N),by = .(aoi_name, msnv, group)]
-  # ctrl_feat_stats <- ctrl_feat_stats[!(aoi_name=='Non-relevant bars' & (msnv=='20' | msnv=='60' | msnv=='62'))]
-  # 
-  # ctrl_feat_weighted_stats <- ctrl_feat_stats[, .(weighted_mean = unlist(lapply(.SD,weighted.mean,w=size))),
-  #                                             by=.(aoi_name, group),.SDcols=c('mean_feat')]
-  # ctrl_feat_weighted_stats$weighted_sd <- ctrl_feat_stats[, .(weighted_sd = lapply(.SD,wtd.var,weights=size)),
-  #                                                         by=.(aoi_name, group),.SDcols=c('sd_feat')]$weighted_sd
-  # ctrl_feat_weighted_stats[, weighted_sd:=sqrt(as.numeric(weighted_sd))]
-  # 
-  # adpt_feat_weighted_stats[, group := factor(group, levels = c('control', 'adaptive'))]
-  # ctrl_feat_weighted_stats[, group := factor(group, levels = c('control', 'adaptive'))]
-  # 
-  # p <- ggplot(rbind(ctrl_feat_weighted_stats, adpt_feat_weighted_stats), aes(x=aoi_name, y=weighted_mean, fill=group)) +
-  #   geom_bar(stat = "identity", color="black", position=position_dodge()) + 
-  #   ggtitle(f) +
-  #   theme(plot.title = element_text(hjust = 0.5)) 
-  # #+ geom_errorbar(aes(ymin=weighted_mean-weighted_sd, ymax=weighted_mean+weighted_sd), width=.2, position=position_dodge(.9))
-  # graphs[[f]] <- p
-}
-
+# checks normality of gaze metrics
 qqnorm(ctrl_matrix[aoi_name=='Relevant bars']$totaltimespent, main = 'control: Relevant bars totaltimespent')
 qqline(ctrl_matrix[aoi_name=='Relevant bars']$totaltimespent)
 

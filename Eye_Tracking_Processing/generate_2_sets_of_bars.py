@@ -1,7 +1,7 @@
 '''
-Scirpt for generating non-relevant bar AOIs. 
+Scirpt for generating relevant and non-relevant bar AOIs. 
 In each .aoi file generated for a msnv, all lines except the last correspond to 
-1 mark or the legend, with the aoi name set to its id in the json files. 
+1 bar or the legend, with the aoi name set to its id in the json files. 
 
 The last line is a semi-colon seperated concatenation of all the above 
 AOIs' coordinates (excl. the legend), with the addtion of number AOIs. Although
