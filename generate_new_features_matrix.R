@@ -15,7 +15,7 @@ adaptive_dropped_sc <- hash('20'=c('msnv12'),'76'=c('msnv50'),'30'=c('msnv38'),
                             '72'=c('msnv43'),'5'=c('msnv81'))
 
 setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019")
-UC_features_df <- fread("control_adaptive_UC_performance.csv", sep=",") 
+UC_features_df <- fread("labelsControlAdaptive.csv", sep=",") 
 UC_features_df[, msnv := as.character(msnv)]
 
 

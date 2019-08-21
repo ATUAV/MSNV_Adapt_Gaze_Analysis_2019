@@ -33,16 +33,19 @@ setnames(adpt_bcl_raw, 1, 'part_id')
 bcl_raw <- rbind(ctrl_bcl_raw, adpt_bcl_raw)
 combined_matrix <- merge(combined_matrix, bcl_raw, all.x = TRUE)
 
-uc_subset <- combined_matrix[, .SD[1], by=part_id, .SDcols=c('Meara', 'BarChartLit_raw', 'BarChartLit')]
+uc_subset <- combined_matrix[, .SD[1], by=part_id, .SDcols=c('Meara', 'BarChartLit_raw', 'BarChartLit', 'verbalWM')]
+
 
 ###### 2-way split
+
 combined_matrix[Meara>=median(uc_subset$Meara), Meara2 := 'High']
 combined_matrix[Meara<median(uc_subset$Meara), Meara2 := 'Low']
+combined_matrix[verbalWM>=median(uc_subset$verbalWM), verbalWM2 := 'High']
+combined_matrix[verbalWM<median(uc_subset$verbalWM), verbalWM2 := 'Low']
 combined_matrix[, Meara2 := factor(Meara2, levels=c('Low', 'High'))]
 combined_matrix[BarChartLit_raw>=median(uc_subset$BarChartLit_raw), VisLit2 := 'High']
 combined_matrix[BarChartLit_raw<median(uc_subset$BarChartLit_raw), VisLit2 := 'Low']
 combined_matrix[, VisLit2 := factor(VisLit2, levels=c('Low', 'High'))]
-
 
 # new pruned models without non-significant terms found in stage 1 and contrast tests
 test <- lmerTest::lmer(numtransfrom_Refs ~ Meara2*group + (1 | msnv) + (1 | part_id),
@@ -54,8 +57,8 @@ means2$contrasts
 
 test <- lmerTest::lmer(numtransfrom_labels ~ VisLit2*group + (1 | msnv) + (1 | part_id),
                        na.omit(combined_matrix[aoi_name=='Relevant_bars']), REML = TRUE)
-means1 <- lsmeans(test, pairwise ~ VisLit2|group, adjust = 'none')
-means2 <- lsmeans(test, pairwise ~ group|VisLit2, adjust = 'none')
+means1 <- lsmeans(test, pairwise ~ VisLit2|group, adjust = 'fdr')
+means2 <- lsmeans(test, pairwise ~ group|VisLit2, adjust = 'fdr')
 means1$contrasts
 means2$contrasts
 
@@ -139,6 +142,14 @@ combined_matrix[Meara>=pivot_low & Meara<pivot_high, Meara3 := 'Med']
 combined_matrix[Meara>=pivot_high, Meara3 := 'High']
 combined_matrix[, Meara3 := factor(Meara3, levels=c('Low', 'Med', 'High'))]
 
+uc_subset <- uc_subset[order(verbalWM)]
+pivot_low <- uc_subset[nrow(uc_subset)*(1/3)]$verbalWM
+pivot_high <- uc_subset[nrow(uc_subset)*(2/3)]$verbalWM
+combined_matrix[verbalWM<pivot_low, verbalWM3 := 'Low']
+combined_matrix[verbalWM>=pivot_low & verbalWM<pivot_high, verbalWM3 := 'Med']
+combined_matrix[verbalWM>=pivot_high, verbalWM3 := 'High']
+combined_matrix[, verbalWM3 := factor(verbalWM3, levels=c('Low', 'Med', 'High'))]
+
 # Dereck's way of 3-way split for VisLit
 uc_subset <- uc_subset[order(BarChartLit,BarChartLit_raw)]
 pivot_lowA <- uc_subset[nrow(uc_subset)*(1/3)]$BarChartLit
@@ -152,32 +163,32 @@ combined_matrix[BarChartLit==pivot_lowA & BarChartLit_raw>=pivot_lowB, VisLit3 :
 combined_matrix[BarChartLit>pivot_highA, VisLit3 := 'High']
 combined_matrix[, VisLit3 := factor(VisLit3, levels=c('Low', 'Med', 'High'))]
 
-# new pruned models without non-significant terms found in stage 1 and contrast tests
+# specify new pruned models without non-significant terms found in stage 1 and do contrast tests
 test <- lmerTest::lmer(numtransfrom_Refs ~ Meara3*group + (1 | msnv) + (1 | part_id),
                        na.omit(combined_matrix[aoi_name=='Relevant_bars']), REML = TRUE)
-means1 <- lsmeans(test, pairwise ~ Meara3|group, adjust = 'none')
-means2 <- lsmeans(test, pairwise ~ group|Meara3, adjust = 'none')
+means1 <- lsmeans(test, pairwise ~ Meara3|group, adjust = 'fdr')
+means2 <- lsmeans(test, pairwise ~ group|Meara3, adjust = 'fdr')
 means1$contrasts
 means2$contrasts
 
 test <- lmerTest::lmer(numtransfrom_labels ~ VisLit3*group + (1 | msnv) + (1 | part_id),
                        na.omit(combined_matrix[aoi_name=='Relevant_bars']), REML = TRUE)
-means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'none')
-means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'none')
+means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'fdr')
+means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'fdr')
 means1$contrasts
 means2$contrasts
 
 test <- lmerTest::lmer(numtransfrom_Non_relevant_bars ~ VisLit3*group + (1 | msnv) + (1 | part_id),
                        na.omit(combined_matrix[aoi_name=='legend']), REML = TRUE)
-means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'none')
-means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'none')
+means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'fdr')
+means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'fdr')
 means1$contrasts
 means2$contrasts
 
 test <- lmerTest::lmer(numtransfrom_Refs ~ VisLit3*group + (1 | msnv) + (1 | part_id),
                        na.omit(combined_matrix[aoi_name=='legend']), REML = TRUE)
-means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'none')
-means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'none')
+means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'fdr')
+means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'fdr')
 means1$contrasts
 means2$contrasts
 
@@ -228,3 +239,46 @@ ggplot(sss, aes(x=VisLit3, y=numtransfrom_Refs, group=group)) +
   scale_linetype_manual(values=c("dashed",'solid'))
 
 
+#### for marginally significant interaction effects found in stage 1
+
+test <- lmerTest::lmer(numtransfrom_Non_relevant_bars ~ Meara3 + VisLit3*group + (1 | msnv) + (1 | part_id),
+                       na.omit(combined_matrix[aoi_name=='Relevant_bars']), REML = TRUE)
+means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'none')
+means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'none')
+means1$contrasts
+means2$contrasts
+
+test <- lmerTest::lmer(numtransfrom_legend ~ VisLit3*group + (1 | msnv) + (1 | part_id),
+                       na.omit(combined_matrix[aoi_name=='Relevant_bars']), REML = TRUE)
+means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'none')
+means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'none')
+means1$contrasts
+means2$contrasts
+
+test <- lmerTest::lmer(totaltimespent ~ Meara3*group + (1 | msnv) + (1 | part_id),
+                       na.omit(combined_matrix[aoi_name=='Non_relevant_bars']), REML = TRUE)
+means1 <- lsmeans(test, pairwise ~ Meara3|group, adjust = 'none')
+means2 <- lsmeans(test, pairwise ~ group|Meara3, adjust = 'none')
+means1$contrasts
+means2$contrasts
+
+test <- lmerTest::lmer(numtransfrom_Relevant_bars ~ Meara3 + VisLit3*group + (1 | msnv) + (1 | part_id),
+                       na.omit(combined_matrix[aoi_name=='Non_relevant_bars']), REML = TRUE)
+means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'none')
+means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'none')
+means1$contrasts
+means2$contrasts
+
+test <- lmerTest::lmer(meanfixationduration ~ VisLit3*group + (1 | msnv) + (1 | part_id),
+                       na.omit(combined_matrix[aoi_name=='Refs']), REML = TRUE)
+means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'none')
+means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'none')
+means1$contrasts
+means2$contrasts
+
+test <- lmerTest::lmer(numtransfrom_Relevant_bars ~ VisLit3*group + (1 | msnv) + (1 | part_id),
+                       na.omit(combined_matrix[aoi_name=='labels']), REML = TRUE)
+means1 <- lsmeans(test, pairwise ~ VisLit3|group, adjust = 'none')
+means2 <- lsmeans(test, pairwise ~ group|VisLit3, adjust = 'none')
+means1$contrasts
+means2$contrasts
