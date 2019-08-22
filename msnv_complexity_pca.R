@@ -29,8 +29,7 @@ subset <- UC_features_df[, .(difficulty_mean = mean(difficulty),
                          by=msnv]
 setnames(msnv_df, 'MSNV', 'msnv')
 
-## without the subjective measure 
-#pcout=prcomp(msnv_df[, -c('msnv')], scale=TRUE)
+#pcout=prcomp(msnv_df[, -c('msnv')], scale=TRUE) ## without the subjective measure 
 measures_df <- merge(msnv_df, subset[, .(msnv, difficulty_mean)], by='msnv')[, -c('msnv')]
 pcout=prcomp(measures_df, scale=TRUE)
 
@@ -38,7 +37,8 @@ summary(pcout)
 
 pcout$rotation ## the components/vectors 
 
-## write out the negated pc1 coordinates (since the sign for the loadings in component 1 are all negative)
+## write out the negated pc1 coordinates 
+# (since the signs for the loadings in component 1 are all negative, we should negate the 1st component)
 x <- as.data.frame(pcout$x)[, c('PC1'), drop=FALSE]
 x$msnv <- c('3', '5', '9', '11', '20', '27', '28', '30', '60', '62', '66', '72', '74', '76')
 x$PC1 <- - x$PC1
@@ -46,12 +46,14 @@ x <- x[, c(2,1)]
 write.csv(x, 'msnv_pc1_coordinates.csv', row.names = FALSE)
 
 
+# Bartlett's Test of Sphericity
 bart <- bart_spher(measures_df)
 print(bart)
 # X2 = 55.719
 # df = 15
 # p-value < 2.22e-16
 
+# Kaiser-Meyer-Olkin Statistics
 kmo <- KMOS(measures_df)
 print(kmo)
 # Measures of Sampling Adequacy (MSA):

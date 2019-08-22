@@ -2,6 +2,7 @@ library(data.table)
 library(lmerTest)
 library(lsmeans)
 library(Rmisc)
+library(ggplot2)
 
 setwd("/Users/kristys/Documents/MSNV_Adapt_Gaze_Analysis_2019")
 ref_viz_ctrl_matrix <- fread('control_ref_viz_features_rearranged.tsv', sep = '\t')
@@ -47,7 +48,7 @@ combined_matrix[BarChartLit_raw>=median(uc_subset$BarChartLit_raw), VisLit2 := '
 combined_matrix[BarChartLit_raw<median(uc_subset$BarChartLit_raw), VisLit2 := 'Low']
 combined_matrix[, VisLit2 := factor(VisLit2, levels=c('Low', 'High'))]
 
-# new pruned models without non-significant terms found in stage 1 and contrast tests
+# specify stepwise models and contrast tests
 test <- lmerTest::lmer(numtransfrom_Refs ~ Meara2*group + (1 | msnv) + (1 | part_id),
                        na.omit(combined_matrix[aoi_name=='Relevant_bars']), REML = TRUE)
 means1 <- lsmeans(test, pairwise ~ Meara2|group, adjust = 'none')
@@ -163,7 +164,7 @@ combined_matrix[BarChartLit==pivot_lowA & BarChartLit_raw>=pivot_lowB, VisLit3 :
 combined_matrix[BarChartLit>pivot_highA, VisLit3 := 'High']
 combined_matrix[, VisLit3 := factor(VisLit3, levels=c('Low', 'Med', 'High'))]
 
-# specify new pruned models without non-significant terms found in stage 1 and do contrast tests
+# specify stepwise models and do contrast tests
 test <- lmerTest::lmer(numtransfrom_Refs ~ Meara3*group + (1 | msnv) + (1 | part_id),
                        na.omit(combined_matrix[aoi_name=='Relevant_bars']), REML = TRUE)
 means1 <- lsmeans(test, pairwise ~ Meara3|group, adjust = 'fdr')

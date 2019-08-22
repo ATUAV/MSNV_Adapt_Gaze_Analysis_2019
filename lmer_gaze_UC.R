@@ -32,7 +32,7 @@ scale01 <- function(x) {(x - min(x)) / (max(x) - min(x))}
 combined_matrix[, names(combined_matrix)[-c(1, 2, 3, 4)] := lapply(.SD, function(x) scale(scale01(x), scale = FALSE)),
                 .SDcols=names(combined_matrix)[-c(1, 2, 3, 4)]]
 
-sink("gaze_metrics_UC_lmer_normalized_b.txt")
+sink("R_output_LMM_gaze_metrics_UC_normalized_b.txt")
 
 for (aoi in c('Relevant_bars', 'Non_relevant_bars', 'Refs', 'labels', 'legend')) {
   
@@ -44,11 +44,16 @@ for (aoi in c('Relevant_bars', 'Non_relevant_bars', 'Refs', 'labels', 'legend'))
     
     if (y==paste0('numtransfrom_', aoi)) next
     
-    formula <- paste(y, "~ BarChartLit*group + Meara*group + verbalWM*group + (1 | msnv) + (1 | part_id)")
+    .env <- environment()
+    formula <- as.formula(paste(y, "~ BarChartLit*group + Meara*group + verbalWM*group + (1 | msnv) + (1 | part_id)"), env= .env)
     test <- lmerTest::lmer(formula, na.omit(combined_matrix[aoi_name==aoi]), REML = TRUE)
+    stepwise_model <- step(test, reduce.random=FALSE)
+    
     cat('\n')
-    print(paste0('||||||||||||||||| Model: ', formula))
+    print(paste0('||||||||||||||||| Model: ', paste(y, "~ BarChartLit*group + Meara*group + verbalWM*group + (1 | msnv) + (1 | part_id)")))
     print(summary(test))
+    print('############################## Stepwise Model:')
+    print(stepwise_model)
   }
   
   cat("///////////////////////////////////////////////////////////////////////////\n")

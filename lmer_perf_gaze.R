@@ -32,7 +32,7 @@ results_matrix <- results_matrix[significant=='y']
 results_matrix <- unique(results_matrix, by=c('aoi', 'gaze metric'))
 
 
-sink("lmer_perf_gaze_metrics_adaptive.txt")
+sink("R_output_LMM_perf_gaze_metrics_normalized_b.txt")
 
 for(i in 1:nrow(results_matrix)) {
   for(uf in c('mmd_task_time', 'mmd_accuracy')) {
@@ -41,7 +41,7 @@ for(i in 1:nrow(results_matrix)) {
     
     formula <- paste0(uf, ' ~ ', metric, ' + (1 | msnv) + (1 | part_id)')
     
-    test <- lmerTest::lmer(formula, na.omit(combined_matrix[aoi_name==aoi&group=='adaptive']), REML = TRUE)
+    test <- lmerTest::lmer(formula, na.omit(combined_matrix[aoi_name==aoi]), REML = TRUE)
 
     cat('\n')
     print(paste0('///////////////// AOI: ', results_matrix[i, 'aoi']))
