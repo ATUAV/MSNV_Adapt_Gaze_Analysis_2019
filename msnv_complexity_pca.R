@@ -37,9 +37,9 @@ pcout=prcomp(measures_df, scale=TRUE)
 summary(pcout)
 
 pcout$rotation ## the components/vectors 
+# (since the signs for the loadings/weights in component 1 are all negative, we should negate the 1st component and its coordinates)
 
 ## write out the negated pc1 coordinates 
-# (since the signs for the loadings in component 1 are all negative, we should negate the 1st component)
 x <- as.data.frame(pcout$x)[, c('PC1'), drop=FALSE]
 x$msnv <- c('3', '5', '9', '11', '20', '27', '28', '30', '60', '62', '66', '72', '74', '76')
 x$PC1 <- - x$PC1
