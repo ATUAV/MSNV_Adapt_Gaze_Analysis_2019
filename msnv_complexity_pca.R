@@ -30,6 +30,7 @@ subset <- UC_features_df[, .(difficulty_mean = mean(difficulty),
 setnames(msnv_df, 'MSNV', 'msnv')
 
 #pcout=prcomp(msnv_df[, -c('msnv')], scale=TRUE) ## without the subjective measure 
+
 measures_df <- merge(msnv_df, subset[, .(msnv, difficulty_mean)], by='msnv')[, -c('msnv')]
 pcout=prcomp(measures_df, scale=TRUE)
 

@@ -16,13 +16,14 @@ adpt_matrix <- ref_viz_adpt_matrix[, ..features]
 combined_matrix <- rbind(ctrl_matrix, adpt_matrix)
 combined_matrix[, group := factor(group, levels = c('control', 'adaptive'))]
 
+# scale and center PC1 and difficulty 
 scale01 <- function(x) {(x - min(x)) / (max(x) - min(x))}
 pc1_df <- fread('msnv_pc1_coordinates.csv')
 pc1_df[, PC1 := scale(scale01(PC1), scale = FALSE)]
 difficulty_df <- fread('difficulty_ratings.csv')
 difficulty_df[, difficulty := scale(scale01(difficulty), scale = FALSE)]
 
-
+# merge in 3 UCs
 UC_features_df <- fread("labelsControlAdaptive.csv", sep=",") 
 combined_matrix <- merge(combined_matrix, UC_features_df[, c('part_id', 'msnv', 'VerbalWM_longest', 'NAART', 'N4C')])
 
@@ -32,6 +33,7 @@ combined_matrix[, names(combined_matrix)[-c(1, 2, 3)] := lapply(.SD, function(x)
 # merge pc1 and difficulty into the same df 
 merged_df <- merge(combined_matrix, pc1_df, by='msnv')
 merged_df <- merge(merged_df, difficulty_df, by=c('msnv', 'part_id'))
+# eliminate duplicated rows for different AOIs
 merged_df <- merged_df[, .SD[1], by=c('msnv', 'part_id')]
 
 
@@ -211,7 +213,7 @@ means1$contrasts
 means2$contrasts
 
 
-######## 2-way split 
+############# 2-way split 
 merged_df[PC1>=median(pc1_df$PC1), PC12 := 'High']
 merged_df[PC1<median(pc1_df$PC1), PC12 := 'Low']
 merged_df[, PC12 := factor(PC12, levels=c('Low', 'High'))]
